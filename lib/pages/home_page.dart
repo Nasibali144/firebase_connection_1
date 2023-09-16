@@ -1,4 +1,5 @@
 import 'package:firebase_connection_1/blocs/auth/auth_bloc.dart';
+import 'package:firebase_connection_1/pages/detail_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/services/strings.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +129,6 @@ class HomePage extends StatelessWidget {
         ),
       ),
       body: BlocListener<AuthBloc, AuthState>(
-        child: const SizedBox.shrink(),
         listener: (context, state) {
           if (state is AuthFailure) {
             ScaffoldMessenger.of(context)
@@ -145,7 +145,14 @@ class HomePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => SignInPage()));
           }
         },
+        child: const SizedBox.shrink(),
       ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage()));
+          },
+          child: const Icon(Icons.create_outlined),
+        ),
     );
   }
 }

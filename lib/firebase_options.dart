@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '761517653437',
     projectId: 'fir-connection-1-uz',
     authDomain: 'fir-connection-1-uz.firebaseapp.com',
+    databaseURL: 'https://fir-connection-1-uz-default-rtdb.firebaseio.com',
     storageBucket: 'fir-connection-1-uz.appspot.com',
     measurementId: 'G-0M0GE84B80',
   );
@@ -58,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:761517653437:android:6f0a4b7a44f7f9060b26d4',
     messagingSenderId: '761517653437',
     projectId: 'fir-connection-1-uz',
+    databaseURL: 'https://fir-connection-1-uz-default-rtdb.firebaseio.com',
     storageBucket: 'fir-connection-1-uz.appspot.com',
   );
 
@@ -66,6 +68,7 @@ class DefaultFirebaseOptions {
     appId: '1:761517653437:ios:cc0ee826002943350b26d4',
     messagingSenderId: '761517653437',
     projectId: 'fir-connection-1-uz',
+    databaseURL: 'https://fir-connection-1-uz-default-rtdb.firebaseio.com',
     storageBucket: 'fir-connection-1-uz.appspot.com',
     iosBundleId: 'com.example.firebaseConnection1',
   );
@@ -75,6 +78,7 @@ class DefaultFirebaseOptions {
     appId: '1:761517653437:ios:a4855504a6b9d1990b26d4',
     messagingSenderId: '761517653437',
     projectId: 'fir-connection-1-uz',
+    databaseURL: 'https://fir-connection-1-uz-default-rtdb.firebaseio.com',
     storageBucket: 'fir-connection-1-uz.appspot.com',
     iosBundleId: 'com.example.firebaseConnection1.RunnerTests',
   );
