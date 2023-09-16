@@ -42,7 +42,6 @@ class HomePage extends StatelessWidget {
                 },
                 child: const Text(I18N.cancel),),
 
-
             /// #confirm #delete
             ElevatedButton(
               onPressed: () {
