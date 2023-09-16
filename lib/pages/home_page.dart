@@ -7,55 +7,79 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
-  void showWarningDialog(BuildContext context) {
+  void showWarningDialog(BuildContext ctx) {
     final controller = TextEditingController();
     showDialog(
-      context: context,
+      context: ctx,
       builder: (context) {
-        return AlertDialog(
-          title: const Text(I18N.deleteAccount),
-          content: BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
+        return BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if(state is DeleteAccountSuccess) {
+              Navigator.of(context).pop();
+              if(ctx.mounted) {
+                Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (context) => SignInPage()));
+              }
+            }
+
+            if(state is AuthFailure) {
+              Navigator.of(context).pop();
+              Navigator.of(ctx).pop();
+            }
+          },
+          builder: (context, state) {
+            return Stack(
               children: [
-                Text(state is DeleteConfirmSuccess
-                    ? I18N.requestPassword
-                    : I18N.deleteAccountWarning),
-                const SizedBox(
-                  height: 10,
-                ),
-                if (state is DeleteConfirmSuccess)
-                  TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(hintText: I18N.password),
+                AlertDialog(
+                  title: const Text(I18N.deleteAccount),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(state is DeleteConfirmSuccess
+                          ? I18N.requestPassword
+                          : I18N.deleteAccountWarning),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      if (state is DeleteConfirmSuccess)
+                        TextField(
+                          controller: controller,
+                          decoration: const InputDecoration(
+                              hintText: I18N.password),
+                        ),
+                    ],
                   ),
+                  actionsAlignment: MainAxisAlignment.spaceBetween,
+                  actions: [
+
+                    /// #cancel
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(I18N.cancel),),
+
+                    /// #confirm #delete
+                    ElevatedButton(
+                      onPressed: () {
+                        if(state is DeleteConfirmSuccess) {
+                          context.read<AuthBloc>().add(DeleteAccountEvent(controller.text.trim()));
+                        } else {
+                          context.read<AuthBloc>().add(const DeleteConfirmEvent());
+                        }
+                      },
+                      child: Text(state is DeleteConfirmSuccess
+                          ? I18N.delete
+                          : I18N.confirm),
+                    ),
+                  ],
+                ),
+
+                if(state is AuthLoading) const Center(
+                  child: CircularProgressIndicator(),
+                )
               ],
             );
-          }),
-          actionsAlignment: MainAxisAlignment.spaceBetween,
-          actions: [
-
-            /// #cancel
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text(I18N.cancel),),
-
-            /// #confirm #delete
-            ElevatedButton(
-              onPressed: () {
-
-              },
-              child: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  return Text(state is DeleteConfirmSuccess
-                      ? I18N.delete
-                      : I18N.confirm);
-                },
-              ),
-            ),
-          ],
+          },
         );
       },
     );
@@ -88,7 +112,7 @@ class HomePage extends StatelessWidget {
                     ? state.user.displayName!
                     : "accountName";
                 final String email =
-                    state is GetUserSuccess ? state.user.email! : "accountName";
+                state is GetUserSuccess ? state.user.email! : "accountName";
 
                 return UserAccountsDrawerHeader(
                   accountName: Text(name),
@@ -107,6 +131,11 @@ class HomePage extends StatelessWidget {
         child: const SizedBox.shrink(),
         listener: (context, state) {
           if (state is AuthFailure) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text(state.message)));
+          }
+
+          if(state is DeleteAccountSuccess && context.mounted) {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }

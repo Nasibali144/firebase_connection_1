@@ -16,6 +16,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<SignOutEvent>(_signOut);
     on<GetUserEvent>(_getUser);
     on<DeleteConfirmEvent>(_updateUI);
+    on<DeleteAccountEvent>(_deleteAccount);
   }
 
   void _signUp(SignUpEvent event, Emitter emit) async {
@@ -67,6 +68,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _updateUI(DeleteConfirmEvent event, Emitter emit) {
-    emit(const DeleteConfirmEvent());
+    emit(const DeleteConfirmSuccess());
+  }
+
+  void _deleteAccount(DeleteAccountEvent event, Emitter<AuthState> emit) async {
+    emit(AuthLoading());
+    final user = AuthService.user;
+    final resultSignIn = await AuthService.signIn(user.email!, event.password);
+
+    if(!resultSignIn) {
+      emit(const AuthFailure("Please enter valid password!"));
+      return;
+    }
+
+    final result = await AuthService.deleteAccount();
+    if(result) {
+      emit(const DeleteAccountSuccess("Successfully deleted your account!"));
+    } else {
+      emit(const AuthFailure("Something error, please try again later!!!"));
+    }
   }
 }

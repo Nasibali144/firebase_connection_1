@@ -47,6 +47,16 @@ class GetUserSuccess extends AuthState {
 }
 
 class DeleteConfirmSuccess extends AuthState {
+  const DeleteConfirmSuccess();
+
+  @override
+  List<Object> get props => [];
+}
+
+class DeleteAccountSuccess extends AuthState {
+  final String message;
+  const DeleteAccountSuccess(this.message);
+
   @override
   List<Object> get props => [];
 }

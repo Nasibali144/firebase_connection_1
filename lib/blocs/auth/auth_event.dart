@@ -55,3 +55,12 @@ class DeleteConfirmEvent extends AuthEvent {
   @override
   List<Object?> get props => [];
 }
+
+
+class DeleteAccountEvent extends AuthEvent {
+  final String password;
+  const DeleteAccountEvent(this.password);
+
+  @override
+  List<Object?> get props => [password];
+}
