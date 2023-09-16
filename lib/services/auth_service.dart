@@ -2,11 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class AuthService {
-  static final _auth = FirebaseAuth.instance;
+  static final auth = FirebaseAuth.instance;
 
   static Future<bool> signUp(String email, String password, String username) async {
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      final credential = await auth.createUserWithEmailAndPassword(email: email, password: password);
       if(credential.user != null) {
         await credential.user!.updateDisplayName(username);
       }
@@ -20,7 +20,7 @@ sealed class AuthService {
 
   static Future<bool> signIn(String email, String password) async {
     try {
-    final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+    final credential = await auth.signInWithEmailAndPassword(email: email, password: password);
     return credential.user != null;
     } catch(e) {
       debugPrint("ERROR: $e");
@@ -30,7 +30,7 @@ sealed class AuthService {
 
   static Future<bool> signOut() async {
     try {
-      await _auth.signOut();
+      await auth.signOut();
       return true;
     } catch (e) {
       debugPrint("ERROR: $e");
@@ -42,8 +42,8 @@ sealed class AuthService {
 
     /// Har qanday appda delete account qilinganda avvalo qayta sign in qilishi talab qilinadi.
     try {
-      if(_auth.currentUser != null) {
-        await _auth.currentUser!.delete();
+      if(auth.currentUser != null) {
+        await auth.currentUser!.delete();
         return true;
       }
       return false;
@@ -53,5 +53,5 @@ sealed class AuthService {
     }
   }
 
-  static User get user => _auth.currentUser!;
+  static User get user => auth.currentUser!;
 }

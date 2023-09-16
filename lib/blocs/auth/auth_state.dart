@@ -26,3 +26,28 @@ class SignUpSuccess extends AuthState {
   @override
   List<Object> get props => [];
 }
+
+class SignInSuccess extends AuthState {
+  @override
+  List<Object> get props => [];
+}
+
+
+class SignOutSuccess extends AuthState {
+  @override
+  List<Object> get props => [];
+}
+
+class GetUserSuccess extends AuthState {
+  final User user;
+  const GetUserSuccess(this.user);
+
+  @override
+  List<Object> get props => [user];
+}
+
+class DeleteConfirmSuccess extends AuthState {
+  @override
+  List<Object> get props => [];
+}
+
