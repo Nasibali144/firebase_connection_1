@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_connection_1/blocs/auth/auth_bloc.dart';
+import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
+import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
 import 'package:firebase_connection_1/pages/home_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/pages/sign_up_page.dart';
@@ -15,6 +17,8 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => AuthBloc()),
+        BlocProvider<PostBloc>(create: (_) => PostBloc()),
+        BlocProvider<MainBloc>(create: (_) => MainBloc()),
       ],
       child: MaterialApp(
         themeMode: ThemeMode.dark,

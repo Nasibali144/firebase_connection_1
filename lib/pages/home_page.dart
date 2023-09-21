@@ -1,12 +1,25 @@
 import 'package:firebase_connection_1/blocs/auth/auth_bloc.dart';
+import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
 import 'package:firebase_connection_1/pages/detail_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/services/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<MainBloc>().add(const GetAllDataEvent());
+  }
 
   void showWarningDialog(BuildContext ctx) {
     final controller = TextEditingController();
@@ -88,6 +101,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       onDrawerChanged: (value) {
         if (value) {
@@ -145,7 +159,28 @@ class HomePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => SignInPage()));
           }
         },
-        child: const SizedBox.shrink(),
+        child: BlocBuilder<MainBloc, MainState>(
+          builder: (context, state) {
+            return Stack(
+              children: [
+                ListView.builder(
+                  itemCount: state.items.length,
+                  itemBuilder: (context, index) {
+                    final post = state.items[index];
+                    return ListTile(
+                      title: Text(post.title),
+                      subtitle: Text(post.content),
+                    );
+                  },
+                ),
+
+                if(state is MainLoading) const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ],
+            );
+          },
+        ),
       ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
