@@ -26,3 +26,13 @@ class PostIsPublicEvent extends PostEvent {
   @override
   List<Object?> get props => [isPublic];
 }
+
+class DeletePostEvent extends PostEvent {
+  final String postId;
+  const DeletePostEvent(this.postId);
+
+  @override
+  List<Object?> get props => [postId];
+}
+
+

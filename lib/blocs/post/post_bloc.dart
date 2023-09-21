@@ -11,6 +11,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   PostBloc() : super(PostInitial()) {
     on<CreatePostEvent>(_createPost);
     on<PostIsPublicEvent>(_changePublic);
+    on<DeletePostEvent>(_deletePost);
   }
 
   void _createPost(CreatePostEvent event, Emitter emit) async {
@@ -25,5 +26,16 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   void _changePublic(PostIsPublicEvent event, Emitter emit) {
     emit(PostIsPublicState(event.isPublic));
+  }
+
+  void _deletePost(DeletePostEvent event, Emitter emit) async {
+    emit(PostLoading());
+    final result = await DBService.deletePost(event.postId);
+
+    if(result) {
+      emit(DeletePostSuccess());
+    } else {
+      emit(const PostFailure("Something error"));
+    }
   }
 }

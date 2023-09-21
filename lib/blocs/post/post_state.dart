@@ -27,6 +27,11 @@ class CreatePostSuccess extends PostState {
   List<Object> get props => [];
 }
 
+class DeletePostSuccess extends PostState {
+  @override
+  List<Object> get props => [];
+}
+
 class PostIsPublicState extends PostState {
   final bool isPublic;
 

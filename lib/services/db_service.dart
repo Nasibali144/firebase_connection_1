@@ -30,6 +30,16 @@ sealed class DBService {
     final json = jsonDecode(jsonEncode(data.value)) as Map;
     return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
   }
+
+  static Future<bool> deletePost(String postId) async {
+    try {
+      final fbPost = db.ref(Folder.post).child(postId);
+      await fbPost.remove();
+      return true;
+    } catch (e) {
+      return false;
+    }
+   }
 }
 
 sealed class Folder {

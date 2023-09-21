@@ -1,5 +1,6 @@
 import 'package:firebase_connection_1/blocs/auth/auth_bloc.dart';
 import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
+import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
 import 'package:firebase_connection_1/pages/detail_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/services/strings.dart';
@@ -142,34 +143,60 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthFailure) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
-          }
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is AuthFailure) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message)));
+              }
 
-          if(state is DeleteAccountSuccess && context.mounted) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text(state.message)));
-          }
+              if(state is DeleteAccountSuccess && context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message)));
+              }
 
-          if (state is SignOutSuccess) {
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => SignInPage()));
-          }
-        },
+              if (state is SignOutSuccess) {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => SignInPage()));
+              }
+            },
+          ),
+
+          BlocListener<PostBloc, PostState>(
+            listener: (context, state) {
+              if(state is DeletePostSuccess) {
+                context.read<MainBloc>().add(const GetAllDataEvent());
+              }
+
+              if (state is PostFailure) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+          )
+        ],
         child: BlocBuilder<MainBloc, MainState>(
           builder: (context, state) {
             return Stack(
               children: [
                 ListView.builder(
+                  padding: const EdgeInsets.all(15),
                   itemCount: state.items.length,
                   itemBuilder: (context, index) {
                     final post = state.items[index];
-                    return ListTile(
-                      title: Text(post.title),
-                      subtitle: Text(post.content),
+                    return Card(
+                      child: ListTile(
+                        title: Text(post.title),
+                        subtitle: Text(post.content),
+                        trailing: IconButton(
+                          onPressed: () {
+                            context.read<PostBloc>().add(DeletePostEvent(post.id));
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ),
                     );
                   },
                 ),
