@@ -188,6 +188,9 @@ class _HomePageState extends State<HomePage> {
                     final post = state.items[index];
                     return Card(
                       child: ListTile(
+                        onLongPress: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage(post: post)));
+                        },
                         title: Text(post.title),
                         subtitle: Text(post.content),
                         trailing: IconButton(

@@ -1,15 +1,42 @@
 import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
 import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
+import 'package:firebase_connection_1/models/post_model.dart';
 import 'package:firebase_connection_1/views/custom_text_field_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DetailPage extends StatelessWidget {
-  DetailPage({Key? key}) : super(key: key);
+class DetailPage extends StatefulWidget {
+  final Post? post;
 
-  final titleController = TextEditingController();
-  final contentController = TextEditingController();
-  bool isPublic = false;
+  const DetailPage({this.post, Key? key}) : super(key: key);
+
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  late final TextEditingController titleController;
+  late final TextEditingController contentController;
+  late bool isPublic;
+
+  @override
+  void initState() {
+    super.initState();
+    setup();
+  }
+
+  void setup() {
+    if (widget.post != null) {
+      isPublic = widget.post!.isPublic;
+      context.read<PostBloc>().add(PostIsPublicEvent(isPublic));
+      titleController = TextEditingController(text: widget.post!.title);
+      contentController = TextEditingController(text: widget.post!.content);
+    } else {
+      isPublic = false;
+      titleController = TextEditingController();
+      contentController = TextEditingController();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +51,15 @@ class DetailPage extends StatelessWidget {
                 .showSnackBar(SnackBar(content: Text(state.message)));
           }
 
-          if (state is CreatePostSuccess) {
+          if (state is CreatePostSuccess || state is UpdatePostSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Successfully created!!!")));
+                const SnackBar(content: Text("Successfully completed!!!")));
             context.read<MainBloc>().add(const GetAllDataEvent());
             Navigator.of(context).pop();
+          }
+
+          if(state is PostIsPublicState) {
+            isPublic = state.isPublic;
           }
         },
         child: Padding(
@@ -41,13 +72,17 @@ class DetailPage extends StatelessWidget {
                 children: [
                   BlocSelector<PostBloc, PostState, bool>(
                     selector: (state) {
-                      return state is PostIsPublicState && state.isPublic;
+                      if(state is PostIsPublicState) return state.isPublic;
+
+                      return isPublic;
                     },
                     builder: (context, value) {
                       return Checkbox(
                           value: value,
                           onChanged: (value) {
-                            context.read<PostBloc>().add(PostIsPublicEvent(value!));
+                            context
+                                .read<PostBloc>()
+                                .add(PostIsPublicEvent(value!));
                           });
                     },
                   ),
@@ -64,10 +99,18 @@ class DetailPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read<PostBloc>().add(CreatePostEvent(
-              title: titleController.text,
-              content: contentController.text,
-              isPublic: isPublic));
+          if (widget.post == null) {
+            context.read<PostBloc>().add(CreatePostEvent(
+                title: titleController.text,
+                content: contentController.text,
+                isPublic: isPublic));
+          } else {
+            context.read<PostBloc>().add(UpdatePostEvent(
+                postId: widget.post!.id,
+                title: titleController.text,
+                content: contentController.text,
+                isPublic: isPublic));
+          }
         },
         child: const Icon(Icons.cloud_upload_rounded),
       ),

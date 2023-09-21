@@ -32,6 +32,11 @@ class DeletePostSuccess extends PostState {
   List<Object> get props => [];
 }
 
+class UpdatePostSuccess extends PostState {
+  @override
+  List<Object> get props => [];
+}
+
 class PostIsPublicState extends PostState {
   final bool isPublic;
 

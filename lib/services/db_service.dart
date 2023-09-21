@@ -40,6 +40,23 @@ sealed class DBService {
       return false;
     }
    }
+
+  static Future<bool> updatePost(String postId, String title, String content, bool isPublic) async {
+    try {
+      final fbPost = db.ref(Folder.post).child(postId);
+      await fbPost.update({
+        "title": title,
+        "content": content,
+        "isPublic": isPublic
+      });
+
+      // fbPost.set(post.toJson());
+      return true;
+    } catch(e) {
+      debugPrint("DB ERROR: $e");
+      return false;
+    }
+  }
 }
 
 sealed class Folder {

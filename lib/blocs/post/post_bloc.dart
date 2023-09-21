@@ -12,6 +12,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<CreatePostEvent>(_createPost);
     on<PostIsPublicEvent>(_changePublic);
     on<DeletePostEvent>(_deletePost);
+    on<UpdatePostEvent>(_updatePost);
   }
 
   void _createPost(CreatePostEvent event, Emitter emit) async {
@@ -36,6 +37,16 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       emit(DeletePostSuccess());
     } else {
       emit(const PostFailure("Something error"));
+    }
+  }
+
+  void _updatePost(UpdatePostEvent event, Emitter emit) async {
+    emit(PostLoading());
+    final result = await DBService.updatePost(event.postId, event.title, event.content, event.isPublic);
+    if(result) {
+      emit(UpdatePostSuccess());
+    } else {
+      emit(const PostFailure("Something error, tyr again later!!!"));
     }
   }
 }

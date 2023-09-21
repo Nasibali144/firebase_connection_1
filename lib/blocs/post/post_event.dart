@@ -35,4 +35,20 @@ class DeletePostEvent extends PostEvent {
   List<Object?> get props => [postId];
 }
 
+class UpdatePostEvent extends PostEvent {
+  final String postId;
+  final String title;
+  final String content;
+  final bool isPublic;
+
+  const UpdatePostEvent({
+    required this.title,
+    required this.postId,
+    required this.content,
+    required this.isPublic,
+  });
+
+  @override
+  List<Object?> get props => [postId, title, content, isPublic];
+}
 
