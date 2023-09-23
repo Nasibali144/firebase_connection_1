@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_connection_1/models/post_model.dart';
+import 'package:firebase_connection_1/models/user_model.dart';
 import 'package:firebase_connection_1/services/auth_service.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/foundation.dart';
 sealed class DBService {
   static final db = FirebaseDatabase.instance;
 
+  /// post
   static Future<bool> storePost(String title, String content, bool isPublic) async {
     try {
       final folder = db.ref(Folder.post);
@@ -15,7 +17,7 @@ sealed class DBService {
       final id = child.key!;
       final userId = AuthService.user.uid;
 
-      final post = Post(id: id, title: title, content: content, userId: userId, isPublic: isPublic);
+      final post = Post(id: id, title: title, content: content, userId: userId, isPublic: isPublic, createdAt: DateTime.now());
       await child.set(post.toJson());
       return true;
     } catch(e) {
@@ -75,7 +77,6 @@ sealed class DBService {
     }
   }
 
-
   static Future<List<Post>> publicPost([bool isPublic = true]) async {
     try{
       final folder = db.ref(Folder.post);
@@ -101,10 +102,35 @@ sealed class DBService {
       return [];
     }
   }
+
+  /// user
+  static Future<bool> storeUser(String email, String password, String username, String uid) async {
+    try {
+      final folder = db.ref(Folder.user).child(uid);
+      final member = Member(uid: uid, username: username, email: email, password: password);
+      await folder.set(member.toJson());
+      return true;
+    } catch(e) {
+      debugPrint("DB ERROR: $e");
+      return false;
+    }
+  }
+
+  static Future<Member?> readUser(String uid) async {
+    try {
+      final data = db.ref(Folder.user).child(uid).get();
+      final member = Member.fromJson(jsonDecode(jsonEncode(data)) as Map<String, Object>);
+      return member;
+    } catch(e) {
+      debugPrint("DB ERROR: $e");
+      return null;
+    }
+  }
 }
 
 sealed class Folder {
   static const post = "Post";
+  static const user = "User";
 }
 
 enum SearchType {

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_connection_1/services/db_service.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class AuthService {
@@ -9,6 +10,8 @@ sealed class AuthService {
       final credential = await auth.createUserWithEmailAndPassword(email: email, password: password);
       if(credential.user != null) {
         await credential.user!.updateDisplayName(username);
+
+        await DBService.storeUser(email, password, username, credential.user!.uid);
       }
 
       return credential.user != null;

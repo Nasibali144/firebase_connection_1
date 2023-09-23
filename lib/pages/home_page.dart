@@ -197,7 +197,11 @@ class _HomePageState extends State<HomePage> {
           BlocListener<PostBloc, PostState>(
             listener: (context, state) {
               if(state is DeletePostSuccess) {
-                context.read<MainBloc>().add(const AllPublicPostEvent());
+                if(type == SearchType.all) {
+                  context.read<MainBloc>().add(const AllPublicPostEvent());
+                } else {
+                  context.read<MainBloc>().add(const MyPostEvent());
+                }
               }
 
               if (state is PostFailure) {
