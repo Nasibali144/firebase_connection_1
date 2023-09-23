@@ -58,14 +58,56 @@ sealed class DBService {
     }
   }
 
-  static Future<List<Post>> searchPost(String text) async {
-    final folder = db.ref(Folder.post);
-    final event =  await folder.orderByChild("title").startAt(text).endAt("$text\uf8ff").once();
-    final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
-    return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+  static Future<List<Post>> searchPost(String text, [SearchType type = SearchType.all]) async {
+    try{
+      final folder = db.ref(Folder.post);
+      final event =  await folder.orderByChild("title").startAt(text).endAt("$text\uf8ff").once();
+      final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
+      debugPrint("JSON: $json");
+      final data = json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+      switch(type) {
+        case SearchType.all: return data.where((element) => element.isPublic == true).toList();
+        case SearchType.me: return data.where((element) => element.userId == AuthService.user.uid).toList();
+      }
+    } catch(e) {
+      debugPrint("ERROR: $e");
+      return [];
+    }
+  }
+
+
+  static Future<List<Post>> publicPost([bool isPublic = true]) async {
+    try{
+      final folder = db.ref(Folder.post);
+      final event =  await folder.orderByChild("isPublic").equalTo(isPublic).once();
+      final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
+      debugPrint("JSON: $json");
+      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+    } catch(e) {
+      debugPrint("ERROR: $e");
+      return [];
+    }
+  }
+
+  static Future<List<Post>> myPost() async {
+    try{
+      final folder = db.ref(Folder.post);
+      final event =  await folder.orderByChild("userId").equalTo(AuthService.user.uid).once();
+      final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
+      debugPrint("JSON: $json");
+      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+    } catch(e) {
+      debugPrint("ERROR: $e");
+      return [];
+    }
   }
 }
 
 sealed class Folder {
   static const post = "Post";
+}
+
+enum SearchType {
+  all,
+  me,
 }

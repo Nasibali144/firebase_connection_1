@@ -54,7 +54,7 @@ class _DetailPageState extends State<DetailPage> {
           if (state is CreatePostSuccess || state is UpdatePostSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Successfully completed!!!")));
-            context.read<MainBloc>().add(const GetAllDataEvent());
+            context.read<MainBloc>().add(const AllPublicPostEvent());
             Navigator.of(context).pop();
           }
 

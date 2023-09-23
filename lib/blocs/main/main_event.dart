@@ -19,3 +19,17 @@ class SearchMainEvent extends MainEvent {
   @override
   List<Object?> get props => [searchText];
 }
+
+class AllPublicPostEvent extends MainEvent {
+  const AllPublicPostEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class MyPostEvent extends MainEvent {
+  const MyPostEvent();
+
+  @override
+  List<Object?> get props => [];
+}

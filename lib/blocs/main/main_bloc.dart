@@ -12,6 +12,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   MainBloc() : super(const MainInitial([])) {
     on<GetAllDataEvent>(_fetchAllPost);
     on<SearchMainEvent>(_searchPost);
+    on<AllPublicPostEvent>(_publicPost);
+    on<MyPostEvent>(_myPost);
   }
 
   void _fetchAllPost(GetAllDataEvent event, Emitter emit) async {
@@ -25,10 +27,32 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   void _searchPost(SearchMainEvent event, Emitter emit) async {
+    final type = state is MyPostSuccess ? SearchType.me: SearchType.all;
+
     emit(MainLoading(state.items));
     try {
-      final list = await DBService.searchPost(event.searchText);
+      final list = await DBService.searchPost(event.searchText, type);
       emit(SearchMainSuccess(list));
+    } catch (e) {
+      emit(MainFailure(state.items, "Something error, try again later"));
+    }
+  }
+
+  void _publicPost(AllPublicPostEvent event, Emitter emit) async {
+    emit(MainLoading(state.items));
+    try {
+      final list = await DBService.publicPost();
+      emit(AllPublicPostSuccess(list));
+    } catch (e) {
+      emit(MainFailure(state.items, "Something error, try again later"));
+    }
+  }
+
+  void _myPost(MyPostEvent event, Emitter emit) async {
+    emit(MainLoading(state.items));
+    try {
+      final list = await DBService.myPost();
+      emit(MyPostSuccess(list));
     } catch (e) {
       emit(MainFailure(state.items, "Something error, try again later"));
     }

@@ -3,6 +3,7 @@ import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
 import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
 import 'package:firebase_connection_1/pages/detail_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
+import 'package:firebase_connection_1/services/db_service.dart';
 import 'package:firebase_connection_1/services/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,10 +17,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  SearchType type = SearchType.all;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<MainBloc>().add(const GetAllDataEvent());
+    context.read<MainBloc>().add(const AllPublicPostEvent());
   }
 
   void showWarningDialog(BuildContext ctx) {
@@ -128,11 +131,18 @@ class _HomePageState extends State<HomePage> {
                 border: OutlineInputBorder()
               ),
               onChanged: (text) {
+                final bloc = context.read<MainBloc>();
                 debugPrint(text);
                 if(text.isEmpty) {
-                  context.read<MainBloc>().add(const GetAllDataEvent());
+
+
+                  if(type == SearchType.all) {
+                    bloc.add(const AllPublicPostEvent());
+                  } else {
+                    bloc.add(const MyPostEvent());
+                  }
                 } else {
-                  context.read<MainBloc>().add(SearchMainEvent(text));
+                  bloc.add(SearchMainEvent(text));
                 }
               },
             ),
@@ -187,7 +197,7 @@ class _HomePageState extends State<HomePage> {
           BlocListener<PostBloc, PostState>(
             listener: (context, state) {
               if(state is DeletePostSuccess) {
-                context.read<MainBloc>().add(const GetAllDataEvent());
+                context.read<MainBloc>().add(const AllPublicPostEvent());
               }
 
               if (state is PostFailure) {
@@ -232,12 +242,27 @@ class _HomePageState extends State<HomePage> {
           },
         ),
       ),
-        floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage()));
           },
           child: const Icon(Icons.create_outlined),
         ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          if(index == 0) {
+            type = SearchType.all;
+            context.read<MainBloc>().add(const AllPublicPostEvent());
+          } else {
+            type = SearchType.me;
+            context.read<MainBloc>().add(const MyPostEvent());
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.public), label: "All"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Me"),
+        ],
+      ),
     );
   }
 }

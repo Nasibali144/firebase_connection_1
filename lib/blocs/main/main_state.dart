@@ -44,3 +44,19 @@ class SearchMainSuccess extends MainState {
   @override
   List<Object> get props => [items];
 }
+
+class AllPublicPostSuccess extends MainState {
+
+  const AllPublicPostSuccess(super.items);
+
+  @override
+  List<Object> get props => [items];
+}
+
+class MyPostSuccess extends MainState {
+
+  const MyPostSuccess(super.items);
+
+  @override
+  List<Object> get props => [items];
+}
