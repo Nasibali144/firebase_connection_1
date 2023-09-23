@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:firebase_connection_1/models/post_model.dart';
 import 'package:firebase_connection_1/models/user_model.dart';
 import 'package:firebase_connection_1/services/auth_service.dart';
+import 'package:firebase_connection_1/services/store_service.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 
@@ -10,14 +12,14 @@ sealed class DBService {
   static final db = FirebaseDatabase.instance;
 
   /// post
-  static Future<bool> storePost(String title, String content, bool isPublic) async {
+  static Future<bool> storePost(String title, String content, bool isPublic, File file) async {
     try {
       final folder = db.ref(Folder.post);
       final child = folder.push();
       final id = child.key!;
       final userId = AuthService.user.uid;
-
-      final post = Post(id: id, title: title, content: content, userId: userId, isPublic: isPublic, createdAt: DateTime.now());
+      final imageUrl = await StoreService.uploadFile(file);
+      final post = Post(id: id, title: title, content: content, userId: userId, imageUrl: imageUrl, isPublic: isPublic, createdAt: DateTime.now());
       await child.set(post.toJson());
       return true;
     } catch(e) {
@@ -131,6 +133,7 @@ sealed class DBService {
 sealed class Folder {
   static const post = "Post";
   static const user = "User";
+  static const postImages = "PostImage";
 }
 
 enum SearchType {
