@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
 import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
 import 'package:firebase_connection_1/models/post_model.dart';
 import 'package:firebase_connection_1/views/custom_text_field_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DetailPage extends StatefulWidget {
   final Post? post;
@@ -18,6 +21,8 @@ class _DetailPageState extends State<DetailPage> {
   late final TextEditingController titleController;
   late final TextEditingController contentController;
   late bool isPublic;
+  final ImagePicker picker = ImagePicker();
+  File? file;
 
   @override
   void initState() {
@@ -35,6 +40,14 @@ class _DetailPageState extends State<DetailPage> {
       isPublic = false;
       titleController = TextEditingController();
       contentController = TextEditingController();
+    }
+  }
+
+  void getImage() async {
+    final xFile = await picker.pickImage(source: ImageSource.gallery);
+    file = xFile != null ? File(xFile.path) : null;
+    if (file != null && mounted) {
+      context.read<PostBloc>().add(ViewImagePostEvent(file!));
     }
   }
 
@@ -58,7 +71,7 @@ class _DetailPageState extends State<DetailPage> {
             Navigator.of(context).pop();
           }
 
-          if(state is PostIsPublicState) {
+          if (state is PostIsPublicState) {
             isPublic = state.isPublic;
           }
         },
@@ -66,13 +79,38 @@ class _DetailPageState extends State<DetailPage> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
+              GestureDetector(
+                onTap: getImage,
+                child: BlocSelector<PostBloc, PostState, File?>(
+                  selector: (state) =>
+                      state is ViewImagePostSuccess ? state.file : null,
+                  builder: (context, file) {
+                    return Card(
+                      child: SizedBox(
+                        height: MediaQuery.sizeOf(context).width - 40,
+                        width: MediaQuery.sizeOf(context).width,
+                        child: file == null
+                            ? const Icon(
+                                Icons.add,
+                                size: 175,
+                              )
+                            : Image.file(
+                                file,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 30),
               CustomTextField(controller: titleController, title: "Title"),
               CustomTextField(controller: contentController, title: "Content"),
               Row(
                 children: [
                   BlocSelector<PostBloc, PostState, bool>(
                     selector: (state) {
-                      if(state is PostIsPublicState) return state.isPublic;
+                      if (state is PostIsPublicState) return state.isPublic;
 
                       return isPublic;
                     },
@@ -101,6 +139,7 @@ class _DetailPageState extends State<DetailPage> {
         onPressed: () {
           if (widget.post == null) {
             context.read<PostBloc>().add(CreatePostEvent(
+                file: file!,
                 title: titleController.text,
                 content: contentController.text,
                 isPublic: isPublic));

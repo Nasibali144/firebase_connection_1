@@ -45,3 +45,12 @@ class PostIsPublicState extends PostState {
   @override
   List<Object> get props => [isPublic];
 }
+
+class ViewImagePostSuccess extends PostState {
+  final File file;
+
+  const ViewImagePostSuccess(this.file);
+
+  @override
+  List<Object> get props => [file];
+}

@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -13,11 +13,12 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<PostIsPublicEvent>(_changePublic);
     on<DeletePostEvent>(_deletePost);
     on<UpdatePostEvent>(_updatePost);
+    on<ViewImagePostEvent>(_viewImage);
   }
 
   void _createPost(CreatePostEvent event, Emitter emit) async {
     emit(PostLoading());
-    final result = await DBService.storePost(event.title, event.content, event.isPublic);
+    final result = await DBService.storePost(event.title, event.content, event.isPublic, event.file);
     if(result) {
       emit(CreatePostSuccess());
     } else {
@@ -27,6 +28,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   void _changePublic(PostIsPublicEvent event, Emitter emit) {
     emit(PostIsPublicState(event.isPublic));
+  }
+
+  void _viewImage(ViewImagePostEvent event, Emitter emit) {
+    emit(ViewImagePostSuccess(event.file));
   }
 
   void _deletePost(DeletePostEvent event, Emitter emit) async {

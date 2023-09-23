@@ -7,16 +7,18 @@ abstract class PostEvent extends Equatable {
 class CreatePostEvent extends PostEvent {
   final String title;
   final String content;
+  final File file;
   final bool isPublic;
 
   const CreatePostEvent({
     required this.title,
     required this.content,
     required this.isPublic,
+    required this.file,
   });
 
   @override
-  List<Object?> get props => [title, content, isPublic];
+  List<Object?> get props => [title, content, isPublic, file];
 }
 
 class PostIsPublicEvent extends PostEvent {
@@ -52,3 +54,11 @@ class UpdatePostEvent extends PostEvent {
   List<Object?> get props => [postId, title, content, isPublic];
 }
 
+
+class ViewImagePostEvent extends PostEvent {
+  final File file;
+  const ViewImagePostEvent(this.file);
+
+  @override
+  List<Object?> get props => [file];
+}

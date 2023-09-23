@@ -69,6 +69,7 @@ sealed class DBService {
       final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
       debugPrint("JSON: $json");
       final data = json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+
       switch(type) {
         case SearchType.all: return data.where((element) => element.isPublic == true).toList();
         case SearchType.me: return data.where((element) => element.userId == AuthService.user.uid).toList();
