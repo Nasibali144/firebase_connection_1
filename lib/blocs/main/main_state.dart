@@ -36,3 +36,11 @@ class FetchDataSuccess extends MainState {
   @override
   List<Object> get props => [message, items];
 }
+
+class SearchMainSuccess extends MainState {
+
+  const SearchMainSuccess(super.items);
+
+  @override
+  List<Object> get props => [items];
+}

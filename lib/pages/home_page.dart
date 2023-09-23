@@ -118,6 +118,26 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.logout),
           )
         ],
+        bottom: PreferredSize(
+          preferredSize: Size(MediaQuery.of(context).size.width, 80),
+          child:  Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: "Search",
+                border: OutlineInputBorder()
+              ),
+              onChanged: (text) {
+                debugPrint(text);
+                if(text.isEmpty) {
+                  context.read<MainBloc>().add(const GetAllDataEvent());
+                } else {
+                  context.read<MainBloc>().add(SearchMainEvent(text));
+                }
+              },
+            ),
+          ),
+        ),
       ),
       drawer: Drawer(
         child: Column(

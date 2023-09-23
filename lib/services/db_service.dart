@@ -57,6 +57,13 @@ sealed class DBService {
       return false;
     }
   }
+
+  static Future<List<Post>> searchPost(String text) async {
+    final folder = db.ref(Folder.post);
+    final event =  await folder.orderByChild("title").startAt(text).endAt("$text\uf8ff").once();
+    final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
+    return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+  }
 }
 
 sealed class Folder {

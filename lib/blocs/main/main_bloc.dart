@@ -11,6 +11,7 @@ part 'main_state.dart';
 class MainBloc extends Bloc<MainEvent, MainState> {
   MainBloc() : super(const MainInitial([])) {
     on<GetAllDataEvent>(_fetchAllPost);
+    on<SearchMainEvent>(_searchPost);
   }
 
   void _fetchAllPost(GetAllDataEvent event, Emitter emit) async {
@@ -20,6 +21,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       emit(FetchDataSuccess(list, "Successfully fetched!"));
     } catch (e) {
      emit(MainFailure(state.items, "Something error, try again later"));
+    }
+  }
+
+  void _searchPost(SearchMainEvent event, Emitter emit) async {
+    emit(MainLoading(state.items));
+    try {
+      final list = await DBService.searchPost(event.searchText);
+      emit(SearchMainSuccess(list));
+    } catch (e) {
+      emit(MainFailure(state.items, "Something error, try again later"));
     }
   }
 }

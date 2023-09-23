@@ -10,3 +10,12 @@ class GetAllDataEvent extends MainEvent {
   @override
   List<Object?> get props => [];
 }
+
+class SearchMainEvent extends MainEvent {
+  final String searchText;
+
+  const SearchMainEvent(this.searchText);
+
+  @override
+  List<Object?> get props => [searchText];
+}
