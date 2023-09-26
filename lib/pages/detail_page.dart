@@ -81,10 +81,9 @@ class _DetailPageState extends State<DetailPage> {
             children: [
               GestureDetector(
                 onTap: getImage,
-                child: BlocSelector<PostBloc, PostState, File?>(
-                  selector: (state) =>
-                      state is ViewImagePostSuccess ? state.file : null,
-                  builder: (context, file) {
+                child: BlocBuilder<PostBloc, PostState>(
+                  buildWhen: (previous, current) => current is ViewImagePostSuccess,
+                  builder: (context, state) {
                     return Card(
                       child: SizedBox(
                         height: MediaQuery.sizeOf(context).width - 40,
@@ -95,7 +94,7 @@ class _DetailPageState extends State<DetailPage> {
                                 size: 175,
                               )
                             : Image.file(
-                                file,
+                                file!,
                                 fit: BoxFit.cover,
                               ),
                       ),

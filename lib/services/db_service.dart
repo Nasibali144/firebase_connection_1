@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_connection_1/models/message_model.dart';
 import 'package:firebase_connection_1/models/post_model.dart';
 import 'package:firebase_connection_1/models/user_model.dart';
 import 'package:firebase_connection_1/services/auth_service.dart';
@@ -19,7 +20,7 @@ sealed class DBService {
       final id = child.key!;
       final userId = AuthService.user.uid;
       final imageUrl = await StoreService.uploadFile(file);
-      final post = Post(id: id, title: title, content: content, userId: userId, imageUrl: imageUrl, isPublic: isPublic, createdAt: DateTime.now());
+      final post = Post(id: id, title: title, content: content, userId: userId, imageUrl: imageUrl, isPublic: isPublic, createdAt: DateTime.now(), comments: []);
       await child.set(post.toJson());
       return true;
     } catch(e) {
@@ -86,7 +87,7 @@ sealed class DBService {
       final event =  await folder.orderByChild("isPublic").equalTo(isPublic).once();
       final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
       debugPrint("JSON: $json");
-      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>, isMe: e["userId"] == AuthService.user.uid)).toList();
     } catch(e) {
       debugPrint("ERROR: $e");
       return [];
@@ -99,7 +100,7 @@ sealed class DBService {
       final event =  await folder.orderByChild("userId").equalTo(AuthService.user.uid).once();
       final json = jsonDecode(jsonEncode(event.snapshot.value)) as Map;
       debugPrint("JSON: $json");
-      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>)).toList();
+      return json.values.map((e) => Post.fromJson(e as Map<String, Object?>, isMe: true)).toList();
     } catch(e) {
       debugPrint("ERROR: $e");
       return [];
@@ -127,6 +128,26 @@ sealed class DBService {
     } catch(e) {
       debugPrint("DB ERROR: $e");
       return null;
+    }
+  }
+
+  /// Message
+  Future<bool> writeMessage(String postId, String message) async {
+    try {
+      final post = db.ref(Folder.post).child(postId);
+      final msg = Message(id: "id", message: message, writtenAt: DateTime.now(), userId: AuthService.user.uid, userImage: AuthService.user.photoURL, username: AuthService.user.displayName!);
+      final comments = await post.child("comments").get();
+      final old = (jsonDecode(jsonEncode(comments.value )) as List).map((item) => Message.fromJson(item as Map<String, Object?>)).toList();
+      old.add(msg);
+
+      post.update({
+        "comments": old,
+      });
+      return true;
+    } catch(e) {
+
+      debugPrint("DB ERROR: $e");
+      return false;
     }
   }
 }

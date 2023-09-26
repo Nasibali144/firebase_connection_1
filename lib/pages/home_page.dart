@@ -2,6 +2,7 @@ import 'package:firebase_connection_1/blocs/auth/auth_bloc.dart';
 import 'package:firebase_connection_1/blocs/main/main_bloc.dart';
 import 'package:firebase_connection_1/blocs/post/post_bloc.dart';
 import 'package:firebase_connection_1/pages/detail_page.dart';
+import 'package:firebase_connection_1/pages/post_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/services/db_service.dart';
 import 'package:firebase_connection_1/services/strings.dart';
@@ -220,18 +221,34 @@ class _HomePageState extends State<HomePage> {
                   itemCount: state.items.length,
                   itemBuilder: (context, index) {
                     final post = state.items[index];
-                    return Card(
-                      child: ListTile(
-                        onLongPress: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage(post: post)));
-                        },
-                        title: Text(post.title),
-                        subtitle: Text(post.content),
-                        trailing: IconButton(
-                          onPressed: () {
-                            context.read<PostBloc>().add(DeletePostEvent(post.id));
-                          },
-                          icon: const Icon(Icons.delete),
+                    return GestureDetector(
+                      onLongPress: () {
+                        // Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage(post: post)));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PostPage(post: post)));
+                      },
+                      child: Card(
+                        child: Column(
+                          children: [
+                            Container(
+                              color: Colors.primaries[index % Colors.primaries.length],
+                              width: MediaQuery.sizeOf(context).width,
+                              height: MediaQuery.sizeOf(context).width - 30,
+                              child: Image(
+                                image: NetworkImage(post.imageUrl),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            ListTile(
+                              title: Text(post.title),
+                              subtitle: Text(post.content),
+                              trailing: post.isMe ? IconButton(
+                                onPressed: () {
+                                  context.read<PostBloc>().add(DeletePostEvent(post.id));
+                                },
+                                icon: const Icon(Icons.delete),
+                              ): null,
+                            ),
+                          ],
                         ),
                       ),
                     );
