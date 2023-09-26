@@ -62,3 +62,13 @@ class ViewImagePostEvent extends PostEvent {
   @override
   List<Object?> get props => [file];
 }
+
+class WriteCommentPostEvent extends PostEvent {
+  final String postId;
+  final String message;
+  final List<Message> old;
+  const WriteCommentPostEvent(this.postId, this.message, this.old);
+
+  @override
+  List<Object?> get props => [postId, message, old];
+}

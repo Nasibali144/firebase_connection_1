@@ -23,7 +23,7 @@ class Message {
       message: json["message"] as String,
       writtenAt: DateTime.parse(json["writtenAt"] as String),
       userId: json["userId"] as String,
-      userImage: json["userImage"] as String,
+      userImage: json["userImage"] as String?,
       username: json["username"] as String,
       isMe: isMe,
     );
@@ -32,7 +32,7 @@ class Message {
   Map<String, Object?> toJson() => {
     "id": id,
     "message": message,
-    "writtenAt": writtenAt,
+    "writtenAt": writtenAt.toIso8601String(),
     "userId": userId,
     "userImage": userImage,
     "username": username,

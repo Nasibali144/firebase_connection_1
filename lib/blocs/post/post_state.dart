@@ -54,3 +54,11 @@ class ViewImagePostSuccess extends PostState {
   @override
   List<Object> get props => [file];
 }
+
+class WriteCommentPostSuccess extends PostState {
+
+  const WriteCommentPostSuccess();
+
+  @override
+  List<Object> get props => [];
+}

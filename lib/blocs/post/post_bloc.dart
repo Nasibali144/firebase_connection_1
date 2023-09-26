@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_connection_1/models/message_model.dart';
 import 'package:firebase_connection_1/services/db_service.dart';
 
 part 'post_event.dart';
@@ -14,6 +15,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<DeletePostEvent>(_deletePost);
     on<UpdatePostEvent>(_updatePost);
     on<ViewImagePostEvent>(_viewImage);
+    on<WriteCommentPostEvent>(_writeComment);
   }
 
   void _createPost(CreatePostEvent event, Emitter emit) async {
@@ -50,6 +52,16 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     final result = await DBService.updatePost(event.postId, event.title, event.content, event.isPublic);
     if(result) {
       emit(UpdatePostSuccess());
+    } else {
+      emit(const PostFailure("Something error, tyr again later!!!"));
+    }
+  }
+
+  void _writeComment(WriteCommentPostEvent event, Emitter emit) async {
+    emit(PostLoading());
+    final result = await DBService.writeMessage(event.postId, event.message, event.old);
+    if(result) {
+      emit(const WriteCommentPostSuccess());
     } else {
       emit(const PostFailure("Something error, tyr again later!!!"));
     }

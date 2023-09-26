@@ -8,10 +8,10 @@ class Post {
   final String imageUrl;
   final bool isPublic;
   final bool isMe;
-  final List<Message> comments;
+   List<Message> comments;
   final DateTime createdAt;
 
-  const Post({
+   Post({
     this.isMe = false,
     required this.id,
     required this.title,
@@ -33,7 +33,7 @@ class Post {
       isPublic: json["isPublic"] as bool,
       createdAt: DateTime.parse(json["createdAt"] as String),
       isMe: isMe,
-      comments: (json["comments"] as List).map((item) => Message.fromJson(item as Map<String, Object?>)).toList()
+      comments: json["comments"] != null ? (json["comments"] as List).map((item) => Message.fromJson(item as Map<String, Object?>)).toList() : [],
     );
   }
 

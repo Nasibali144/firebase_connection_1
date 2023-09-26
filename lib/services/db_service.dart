@@ -132,16 +132,15 @@ sealed class DBService {
   }
 
   /// Message
-  Future<bool> writeMessage(String postId, String message) async {
+  static Future<bool> writeMessage(String postId, String message, List<Message> old) async {
     try {
       final post = db.ref(Folder.post).child(postId);
-      final msg = Message(id: "id", message: message, writtenAt: DateTime.now(), userId: AuthService.user.uid, userImage: AuthService.user.photoURL, username: AuthService.user.displayName!);
-      final comments = await post.child("comments").get();
-      final old = (jsonDecode(jsonEncode(comments.value )) as List).map((item) => Message.fromJson(item as Map<String, Object?>)).toList();
+
+      final msg = Message(id: "${old.length + 1}", message: message, writtenAt: DateTime.now(), userId: AuthService.user.uid, userImage: AuthService.user.photoURL, username: AuthService.user.displayName!);
       old.add(msg);
 
       post.update({
-        "comments": old,
+        "comments": old.map((e) => e.toJson()).toList(),
       });
       return true;
     } catch(e) {
