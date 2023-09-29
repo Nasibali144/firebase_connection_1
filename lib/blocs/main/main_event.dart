@@ -33,3 +33,11 @@ class MyPostEvent extends MainEvent {
   @override
   List<Object?> get props => [];
 }
+
+class ActivateRCEvent extends MainEvent {
+  const ActivateRCEvent();
+
+  @override
+  List<Object?> get props => [];
+}
+

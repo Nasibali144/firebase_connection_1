@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_connection_1/models/post_model.dart';
 import 'package:firebase_connection_1/services/db_service.dart';
+import 'package:firebase_connection_1/services/rc_service.dart';
 
 part 'main_event.dart';
 part 'main_state.dart';
@@ -14,6 +15,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     on<SearchMainEvent>(_searchPost);
     on<AllPublicPostEvent>(_publicPost);
     on<MyPostEvent>(_myPost);
+    on<ActivateRCEvent>(_activate);
   }
 
   void _fetchAllPost(GetAllDataEvent event, Emitter emit) async {
@@ -40,6 +42,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void _publicPost(AllPublicPostEvent event, Emitter emit) async {
     emit(MainLoading(state.items));
+    // throw Exception("This is my Flutter G5 Group");
     try {
       final list = await DBService.publicPost();
       emit(AllPublicPostSuccess(list));
@@ -53,6 +56,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       final list = await DBService.myPost();
       emit(MyPostSuccess(list));
+    } catch (e) {
+      emit(MainFailure(state.items, "Something error, try again later"));
+    }
+  }
+
+  void _activate(ActivateRCEvent event, Emitter emit) async {
+    try {
+      await RCService.activate();
+      emit(MyPostSuccess(state.items));
     } catch (e) {
       emit(MainFailure(state.items, "Something error, try again later"));
     }

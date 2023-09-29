@@ -5,6 +5,7 @@ import 'package:firebase_connection_1/pages/detail_page.dart';
 import 'package:firebase_connection_1/pages/post_page.dart';
 import 'package:firebase_connection_1/pages/sign_in_page.dart';
 import 'package:firebase_connection_1/services/db_service.dart';
+import 'package:firebase_connection_1/services/rc_service.dart';
 import 'package:firebase_connection_1/services/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,13 +18,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   SearchType type = SearchType.all;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    context.read<MainBloc>().add(const AllPublicPostEvent());
+    context.read<MainBloc>()
+      ..add(const AllPublicPostEvent())
+      ..add(const ActivateRCEvent());
   }
 
   void showWarningDialog(BuildContext ctx) {
@@ -33,14 +35,15 @@ class _HomePageState extends State<HomePage> {
       builder: (context) {
         return BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if(state is DeleteAccountSuccess) {
+            if (state is DeleteAccountSuccess) {
               Navigator.of(context).pop();
-              if(ctx.mounted) {
-                Navigator.of(ctx).pushReplacement(MaterialPageRoute(builder: (context) => SignInPage()));
+              if (ctx.mounted) {
+                Navigator.of(ctx).pushReplacement(
+                    MaterialPageRoute(builder: (context) => SignInPage()));
               }
             }
 
-            if(state is AuthFailure) {
+            if (state is AuthFailure) {
               Navigator.of(context).pop();
               Navigator.of(ctx).pop();
             }
@@ -62,28 +65,32 @@ class _HomePageState extends State<HomePage> {
                       if (state is DeleteConfirmSuccess)
                         TextField(
                           controller: controller,
-                          decoration: const InputDecoration(
-                              hintText: I18N.password),
+                          decoration:
+                              const InputDecoration(hintText: I18N.password),
                         ),
                     ],
                   ),
                   actionsAlignment: MainAxisAlignment.spaceBetween,
                   actions: [
-
                     /// #cancel
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text(I18N.cancel),),
+                      child: const Text(I18N.cancel),
+                    ),
 
                     /// #confirm #delete
                     ElevatedButton(
                       onPressed: () {
-                        if(state is DeleteConfirmSuccess) {
-                          context.read<AuthBloc>().add(DeleteAccountEvent(controller.text.trim()));
+                        if (state is DeleteConfirmSuccess) {
+                          context
+                              .read<AuthBloc>()
+                              .add(DeleteAccountEvent(controller.text.trim()));
                         } else {
-                          context.read<AuthBloc>().add(const DeleteConfirmEvent());
+                          context
+                              .read<AuthBloc>()
+                              .add(const DeleteConfirmEvent());
                         }
                       },
                       child: Text(state is DeleteConfirmSuccess
@@ -92,10 +99,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-
-                if(state is AuthLoading) const Center(
-                  child: CircularProgressIndicator(),
-                )
+                if (state is AuthLoading)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  )
               ],
             );
           },
@@ -106,7 +113,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       onDrawerChanged: (value) {
         if (value) {
@@ -114,6 +120,12 @@ class _HomePageState extends State<HomePage> {
         }
       },
       appBar: AppBar(
+        title: BlocBuilder<MainBloc, MainState>(
+          buildWhen: (previous, current) => current is ActivateRCSuccessState,
+          builder: (context, state) {
+            return Text(RCService.season);
+          },
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -124,20 +136,16 @@ class _HomePageState extends State<HomePage> {
         ],
         bottom: PreferredSize(
           preferredSize: Size(MediaQuery.of(context).size.width, 80),
-          child:  Padding(
+          child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
             child: TextField(
               decoration: const InputDecoration(
-                hintText: "Search",
-                border: OutlineInputBorder()
-              ),
+                  hintText: "Search", border: OutlineInputBorder()),
               onChanged: (text) {
                 final bloc = context.read<MainBloc>();
                 debugPrint(text);
-                if(text.isEmpty) {
-
-
-                  if(type == SearchType.all) {
+                if (text.isEmpty) {
+                  if (type == SearchType.all) {
                     bloc.add(const AllPublicPostEvent());
                   } else {
                     bloc.add(const MyPostEvent());
@@ -159,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                     ? state.user.displayName!
                     : "accountName";
                 final String email =
-                state is GetUserSuccess ? state.user.email! : "accountName";
+                    state is GetUserSuccess ? state.user.email! : "accountName";
 
                 return UserAccountsDrawerHeader(
                   accountName: Text(name),
@@ -183,7 +191,7 @@ class _HomePageState extends State<HomePage> {
                     .showSnackBar(SnackBar(content: Text(state.message)));
               }
 
-              if(state is DeleteAccountSuccess && context.mounted) {
+              if (state is DeleteAccountSuccess && context.mounted) {
                 ScaffoldMessenger.of(context)
                     .showSnackBar(SnackBar(content: Text(state.message)));
               }
@@ -194,11 +202,10 @@ class _HomePageState extends State<HomePage> {
               }
             },
           ),
-
           BlocListener<PostBloc, PostState>(
             listener: (context, state) {
-              if(state is DeletePostSuccess) {
-                if(type == SearchType.all) {
+              if (state is DeletePostSuccess) {
+                if (type == SearchType.all) {
                   context.read<MainBloc>().add(const AllPublicPostEvent());
                 } else {
                   context.read<MainBloc>().add(const MyPostEvent());
@@ -224,13 +231,15 @@ class _HomePageState extends State<HomePage> {
                     return GestureDetector(
                       onLongPress: () {
                         // Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage(post: post)));
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => PostPage(post: post)));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => PostPage(post: post)));
                       },
                       child: Card(
                         child: Column(
                           children: [
                             Container(
-                              color: Colors.primaries[index % Colors.primaries.length],
+                              color: Colors
+                                  .primaries[index % Colors.primaries.length],
                               width: MediaQuery.sizeOf(context).width,
                               height: MediaQuery.sizeOf(context).width - 30,
                               child: Image(
@@ -241,12 +250,16 @@ class _HomePageState extends State<HomePage> {
                             ListTile(
                               title: Text(post.title),
                               subtitle: Text(post.content),
-                              trailing: post.isMe ? IconButton(
-                                onPressed: () {
-                                  context.read<PostBloc>().add(DeletePostEvent(post.id));
-                                },
-                                icon: const Icon(Icons.delete),
-                              ): null,
+                              trailing: post.isMe
+                                  ? IconButton(
+                                      onPressed: () {
+                                        context
+                                            .read<PostBloc>()
+                                            .add(DeletePostEvent(post.id));
+                                      },
+                                      icon: const Icon(Icons.delete),
+                                    )
+                                  : null,
                             ),
                           ],
                         ),
@@ -254,24 +267,25 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-
-                if(state is MainLoading) const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                if (state is MainLoading)
+                  const Center(
+                    child: CircularProgressIndicator(),
+                  ),
               ],
             );
           },
         ),
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailPage()));
-          },
-          child: const Icon(Icons.create_outlined),
-        ),
+        onPressed: () {
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => DetailPage()));
+        },
+        child: const Icon(Icons.create_outlined),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
-          if(index == 0) {
+          if (index == 0) {
             type = SearchType.all;
             context.read<MainBloc>().add(const AllPublicPostEvent());
           } else {

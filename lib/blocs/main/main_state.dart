@@ -60,3 +60,10 @@ class MyPostSuccess extends MainState {
   @override
   List<Object> get props => [items];
 }
+
+class ActivateRCSuccessState extends MainState {
+  const ActivateRCSuccessState(super.items);
+
+  @override
+  List<Object> get props => [items];
+}
